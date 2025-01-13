@@ -64,7 +64,7 @@ function EmployeeProject() {
 
   return (
     <div className="p-5 lg:mx-20 mx-4">
-      <h1 className="text-3xl font-bold mb-6">Employee Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Employee Project</h1>
 
       {error && <div className="text-red-600 mb-4">{error}</div>}
 

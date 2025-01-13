@@ -124,6 +124,7 @@ const TaskManager = () => {
         <h2 className="text-xl font-bold">
           Name: {empData.Empname || "Loading..."}
         </h2>
+        <p>EmpId : {empData.EmpId}</p>
         <p>Role: {empData.Role || "Loading..."}</p>
         <p>Reporting Time: 9:30 AM - 6:30 PM</p>
       </div>

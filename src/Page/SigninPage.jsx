@@ -28,11 +28,11 @@ function Signin() {
         
         if (userRole === "Admin") {
           sessionStorage.setItem("adminId", response.data.employee._id);
-          console.log("Admin ID stored in localStorage:", response.data.employee._id);
+          console.log("Admin ID stored in sessionStorage:", response.data.employee._id);
           navigate("/admin-dashboard");
         } else {
           sessionStorage.setItem("empId", response.data.employee._id);
-          console.log("Employee ID stored in localStorage:", response.data.employee._id);
+          console.log("Employee ID stored in sessionStorage:", response.data.employee._id);
           navigate("/dashboard");
         }
       } else {
