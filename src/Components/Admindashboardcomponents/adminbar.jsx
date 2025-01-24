@@ -8,7 +8,6 @@ function Adminbar() {
   let navigate = useNavigate()
 
   const handleComponentToggle = (componentName) => {
-    // Toggle between the clicked component and null
     setActiveComponent((prev) => (prev === componentName ? true : componentName));
   };
 

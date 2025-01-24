@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import Sidebar from "./Sidebar";
 
 function ProjectDetail() {
   const [project, setProject] = useState(null);
   const [subprojects, setSubprojects] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [subproject, setSubproject] = useState({
     TaskName: "",
     TaskDescription: "",
@@ -15,29 +18,34 @@ function ProjectDetail() {
     CreatedDate: new Date().toISOString().split("T")[0],
     Status: "Pending",
     review: "",
+    projectId: sessionStorage.getItem("projectId"),
   });
+
   const { projectId } = useParams();
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
       try {
+        setIsLoading(true);
         const projectResponse = await axios.get(
           `http://localhost:8000/projects/${projectId}`
         );
         setProject(projectResponse.data);
-      } catch (error) {
-        console.error("Error fetching project details:", error);
+      } catch (err) {
+        setError("Error fetching project details. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     const fetchSubprojects = async () => {
       try {
-        const subprojectsResponse = await axios.get(
-          `http://localhost:8000/subprojects/${projectId}`
+        const { data } = await axios.get(
+          `http://localhost:8000/subprojects?projectId=${projectId}`
         );
-        setSubprojects(subprojectsResponse.data);
-      } catch (error) {
-        console.error("Error fetching subprojects:", error);
+        setSubprojects(data);
+      } catch (err) {
+        setError("Error fetching subprojects. Please try again later.");
       }
     };
 
@@ -49,7 +57,7 @@ function ProjectDetail() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setSubproject({ ...subproject, [name]: value });
+    setSubproject((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAssignedToChange = (e) => {
@@ -57,109 +65,141 @@ function ProjectDetail() {
       e.target.selectedOptions,
       (option) => option.value
     );
-    setSubproject({ ...subproject, Assignedto: selectedOptions });
+    setSubproject((prev) => ({ ...prev, Assignedto: selectedOptions }));
+  };
+
+  const handleStatusChange = async (subprojectId, newStatus) => {
+    try {
+      await axios.put(
+        `http://localhost:8000/subprojects/${subprojectId}`,
+        { Status: newStatus }
+      );
+      setSubprojects((prevSubprojects) =>
+        prevSubprojects.map((sub) =>
+          sub._id === subprojectId ? { ...sub, Status: newStatus } : sub
+        )
+      );
+    } catch (err) {
+      setError("Error updating status. Please try again.");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (subproject.Assignedto.length === 0) {
       alert("Please select at least one employee to assign the task.");
       return;
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/subprojects",
-        subproject
-      );
-
-      setSubprojects((prev) => [...prev, response.data]);
+      await axios.post("http://localhost:8000/subprojects", {
+        ...subproject,
+        projectId,
+      });
       setShowForm(false);
-    } catch (error) {
-      console.error("Error adding subproject:", error.response?.data || error);
+      const subprojectsResponse = await axios.get(
+        `http://localhost:8000/subprojects?projectId=${projectId}`
+      );
+      setSubprojects(subprojectsResponse.data);
+    } catch (err) {
+      setError("Error adding subproject. Please try again.");
     }
   };
 
-  if (!project)
-    return <div className="text-center p-10">Loading project details...</div>;
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <div className="p-5 max-w-4xl mx-auto bg-white shadow-md rounded-md">
-      <h1 className="text-3xl font-bold text-center mb-8">Project Details</h1>
+    <div className="p-4 bg-pink-200 min-h-screen flex flex-col lg:flex-row">
+      <Sidebar />
+      <div className="flex-1 ">
+        <div className="bg-white shadow-lg rounded-lg p-4 mb-6 w-96 ml-20">
+          <h1 className="text-2xl font-bold mb-4">Project Details</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <strong>Project Name:</strong>
+              <p className="text-gray-700">{project.ProjectName}</p>
+            </div>
+            <div>
+              <strong>Assigned By:</strong>
+              <p className="text-gray-700">
+                {project.Assignedby?.Empname || "N/A"}
+              </p>
+            </div>
+            <div className="sm:col-span-2">
+              <strong>Assigned To:</strong>
+              <p className="text-gray-700">
+                {project.Assignedto?.map((emp) => emp.Empname).join(", ") ||
+                  "N/A"}
+              </p>
+            </div>
+          </div>
+        </div>
 
-      {/* Project Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div>
-          <strong>Project Name:</strong>
-          <p className="text-gray-700">{project.ProjectName}</p>
-        </div>
-        <div>
-          <strong>Assigned By:</strong>
-          <p className="text-gray-700">{project.Assignedby?.Empname || "N/A"}</p>
-        </div>
-        <div>
-          <strong>Assigned To:</strong>
-          <p className="text-gray-700">
-            {project.Assignedto?.map((employee) => employee.Empname).join(", ") || "N/A"}
-          </p>
-        </div>
-        <div className="col-span-2">
-          <strong>Description:</strong>
-          <p className="text-gray-700">{project.ProjectDescription}</p>
-        </div>
-        <div>
-          <strong>Due Date:</strong>
-          <p className="text-gray-700">{project.DueDate}</p>
+        <div className="ml-20"> 
+          <h2 className="text-xl font-bold mb-4">Subprojects</h2>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded mb-4"
+          >
+            Add Subproject
+          </button>
+          {subprojects.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white shadow-md rounded-lg border border-gray-200">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="text-left p-4 border-b">Task Name</th>
+                    <th className="text-left p-4 border-b">Assigned by</th>
+                    <th className="text-left p-4 border-b">Assigned To</th>
+                    <th className="text-left p-4 border-b">Status</th>
+                    <th className="text-left p-4 border-b">Due Date</th>
+                    <th className="px-4 py-2 border">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subprojects.map((sub) => (
+                    <tr key={sub._id} className="hover:bg-gray-50">
+                      <td className="p-4 border-b">{sub.TaskName}</td>
+                      <td className="p-4 border-b">
+                        {sub.Assignedby?.Empname}
+                      </td>
+                      <td className="p-4 border-b">
+                        {sub.Assignedto?.map((emp) => emp.Empname).join(", ") ||
+                          "N/A"}
+                      </td>
+                      <td className="p-4 border-b">{sub.Status}</td>
+                      <td className="p-4 border-b">{sub.DueDate.slice(0, 10)}</td>
+                      <td className="px-4 py-2 border">
+                        <select
+                          value={sub.Status}
+                          onChange={(e) =>
+                            handleStatusChange(sub._id, e.target.value)
+                          }
+                          className="w-full px-3 py-2 border rounded"
+                        >
+                          <option value="In Progress">In Progress</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Pending">Pending</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-gray-700">No subprojects available for this project.</p>
+          )}
         </div>
       </div>
 
-      {/* Subprojects Table */}
-      {subprojects.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Subprojects</h2>
-          <table className="min-w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-3 border">Task Name</th>
-                <th className="p-3 border">Assigned To</th>
-                <th className="p-3 border">Status</th>
-                <th className="p-3 border">Due Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {subprojects.map((sub) => (
-                <tr key={sub._id}>
-                  <td className="p-3 border">{sub.TaskName}</td>
-                  <td className="p-3 border">
-                    {sub.Assignedto?.map((emp) => emp.Empname).join(", ") || "N/A"}
-                  </td>
-                  <td className="p-3 border">{sub.Status}</td>
-                  <td className="p-3 border">{sub.DueDate}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Add Subproject Button */}
-      <div className="text-center">
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
-        >
-          Add Subproject
-        </button>
-      </div>
-
-      {/* Subproject Modal */}
       {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-96 max-h-[80vh] overflow-auto">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-96">
             <h2 className="text-xl font-bold mb-4">Add Subproject</h2>
             <form onSubmit={handleSubmit}>
-              <div className="mb-4">
+            <div className="mb-4">
                 <label className="block text-gray-700 font-medium mb-2">
                   Task Name:
                 </label>
@@ -196,9 +236,9 @@ function ProjectDetail() {
                   className="w-full px-3 py-2 border rounded"
                   required
                 >
-                  {project.Assignedto?.map((employee) => (
-                    <option key={employee._id} value={employee._id}>
-                      {employee.Empname}
+                  {project.Assignedto?.map((emp) => (
+                    <option key={emp._id} value={emp._id}>
+                      {emp.Empname}
                     </option>
                   ))}
                 </select>
@@ -216,7 +256,7 @@ function ProjectDetail() {
                   required
                 />
               </div>
-              <div className="flex justify-end space-x-4">
+              <div className="flex justify-end gap-4">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
@@ -240,4 +280,5 @@ function ProjectDetail() {
 }
 
 export default ProjectDetail;
+
 

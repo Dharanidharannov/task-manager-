@@ -82,6 +82,7 @@ function EmployeeProject() {
                 <th className="px-4 py-2 border">S.NO</th>
                 <th className="px-4 py-2 border">Project Name</th>
                 <th className="px-4 py-2 border">Assigned By</th>
+                <th className="px-4 py-2 border">Assigned to </th>
                 <th className="px-4 py-2 border">Status</th>
                 <th className="px-4 py-2 border">Actions</th>
               </tr>
@@ -97,6 +98,7 @@ function EmployeeProject() {
                     {project.projectName}
                   </td>
                   <td className="px-4 py-2 border">{project.assignedBy?.Empname}</td>
+                  <td className="px-4 py-2 border"> {project.Assignedto?.map((emp) => emp.Empname).join(", ") || "N/A"}</td>
                   <td className="px-4 py-2 border">{project.Status}</td>
                   <td className="px-4 py-2 border">
                     <select

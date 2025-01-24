@@ -107,6 +107,7 @@ function ChangePassword() {
                 </form>
                 {message && <p className="mt-4 text-green-600 text-center">{message}</p>}
                 {error && <p className="mt-4 text-red-600 text-center">{error}</p>}
+                
             </div>
         </div>
     );
