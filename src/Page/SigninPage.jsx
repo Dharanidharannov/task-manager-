@@ -46,8 +46,8 @@ function Signin() {
   };
 
   return (
-    <div className="background flex justify-center items-center min-h-screen bg-gradient-to-r from-purple-200 via-pink-100 to-purple-300">
-      <div className="relative bg-pink-200 p-8 rounded-lg w-full max-w-md shadow-lg">
+    <div className="background flex justify-center items-center min-h-screen">
+      <div className="relative bg-gradient-to-r from-pink-200 via-purple-100 to-pink-300 p-8 rounded-lg w-full max-w-md shadow-lg">
         {/* Logo */}
         <img
           src={require("../Assest/Logo_Blue 1.png")}

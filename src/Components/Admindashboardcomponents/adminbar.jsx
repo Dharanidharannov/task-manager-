@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import Employeelist from "./employeelist";
 import Project from "./Project";
 import { useNavigate } from "react-router-dom";
+import Departments from "../Department";
+
+
 
 function Adminbar() {
   const [activeComponent, setActiveComponent] = useState(true);
@@ -17,11 +20,11 @@ function Adminbar() {
         <div className="pointer">
           <img src={require("../../Assest/png-01 2 2.png")} alt="Logo" className="w-12 mx-auto" />
         </div>
-        <div className="mt-4 p-1 hover:bg-violet-950 rounded-xl">
+        <div className="mt-4 p-1 hover:bg-violet-950 rounded-xl" onClick={()=>handleComponentToggle("Department")}>
           <img className="w-10 mx-auto" src={require("../../Assest/Fill 2.png")} 
           alt="Icon" />
         </div>
-        <div className="mt-4 p-1 hover:bg-violet-950 rounded-xl cursor-pointer">
+        <div className="mt-4 p-1 hover:bg-violet-950 rounded-xl cursor-pointer" >
           <img className="w-12 mx-auto" src={require("../../Assest/calendar favorite.png")} alt="Icon" />
         </div>
         <div
@@ -74,6 +77,13 @@ function Adminbar() {
           <Project />
         </div>
       )}
+      {activeComponent === "Department"&&(
+        <div className=" ml-20">
+          <Departments/>
+        </div>
+      )}
+
+
     </div>
   );
 }
