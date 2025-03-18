@@ -83,29 +83,31 @@ function ProjectDetail() {
       setError("Error updating status. Please try again.");
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (subproject.Assignedto.length === 0) {
       alert("Please select at least one employee to assign the task.");
       return;
     }
-
+  
     try {
-      await axios.post("http://localhost:8000/subprojects", {
+     await axios.post("http://localhost:8000/subprojects", {
         ...subproject,
         projectId,
       });
+  
       setShowForm(false);
-      const subprojectsResponse = await axios.get(
+  
+      
+      const updatedSubprojects = await axios.get(
         `http://localhost:8000/subprojects?projectId=${projectId}`
       );
-      setSubprojects(subprojectsResponse.data);
+      setSubprojects(updatedSubprojects.data);
     } catch (err) {
       setError("Error adding subproject. Please try again.");
     }
   };
-
+  
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 

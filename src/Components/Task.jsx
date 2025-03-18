@@ -32,6 +32,7 @@ const TaskManager = () => {
     try {
       setError("");
       const empId = sessionStorage.getItem("empId");
+      const date = sessionStorage.getItem("CreatedDate")
 
       const { data: allTasks } = await axios.get(
         `http://localhost:8000/datas?EmpId=${empId}&CreatedDate=${date}`
@@ -118,7 +119,7 @@ const TaskManager = () => {
   };
 
   return (
-    <div className="p-4 md:p-10">
+    <div className="">
       {/* Employee Information */}
       <div className="bg-white shadow rounded-md p-4 mb-4 w-96">
         <h2 className="text-xl font-bold">

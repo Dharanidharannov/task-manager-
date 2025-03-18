@@ -7,7 +7,6 @@ import Dashboard from './Page/DashboardPage';
 import ResetPassword from './Page/ResetPassword';
 import ChangePassword from './Page/ChangePassword';
 
-import Profile from './Page/Profile';
 import DesginationPage from './Page/DesginationPage';
 import Adminsignup from './Page/Adminsignup';
 
@@ -25,7 +24,7 @@ function App() {
                     <Routes>
 
                       <Route path='/' element={<Signin/>} />
-                      <Route path='/profile' element={<Profile/>} />
+                    
                        <Route path='/dashboard' element={<Dashboard/>}/>
                        <Route path='/reset-password' element={<ResetPassword/>} />
                        <Route path='/changepassword' element={<ChangePassword/>} />

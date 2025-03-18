@@ -41,17 +41,18 @@ function Project() {
     const value = Array.from(e.target.selectedOptions, (option) => option.value);
     setFormData({ ...formData, Assignedto: value });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
+  
     try {
       const response = await axios.post("http://localhost:8000/projects", formData);
-
+  
       alert("Project added successfully!");
-      setProjects([...projects, response.data.project]);
+  
+      setProjects([response.data.project, ...projects]);
+  
       setFormData({
         ProjectName: "",
         ProjectDescription: "",
@@ -68,22 +69,24 @@ function Project() {
       setLoading(false);
     }
   };
+  
 
   return (
-    <div className="p-5 lg:mx-20 mx-4 absolute top-2 left-10">
+    <div>
+      <div className="  items-center mb-6">
       <h1 className="text-3xl font-bold mb-6">Project List</h1>
       <div className="mb-3 flex justify-end">
         <button
           onClick={() => setShowForm(true)}
-          className="p-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Add Project
         </button>
       </div>
 
       <div className="border rounded-lg shadow-lg overflow-x-auto">
-        <div className="min-w-max">
-          <table className="w-full text-left">
+        <div className="min-w-max overflow-y-scroll">
+          <table className="w-full text-left bg-white shadow-sm">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
                 <th className="px-4 py-2 border">S.NO</th>
@@ -200,6 +203,7 @@ function Project() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

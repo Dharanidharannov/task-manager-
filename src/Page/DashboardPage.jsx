@@ -9,7 +9,7 @@ function Dashboard() {
   return (
     <div className="bg-pink-200 min-h-screen flex flex-col lg:flex-row">
       <Sidebar />
-      <div className="flex-1">
+      <div className="flex-1 ml-10">
         <Header />
         <div className="p-6 lg:pl-20 pt-32">
           <TaskManager />

@@ -5,8 +5,8 @@ function Sidebar(){
   
   const navigate = useNavigate()
     return(
-        <div className="absolute top-5 left-5 ">
-              <div className="bg-white w-16 h-auto p-3 rounded-2xl ">
+      <div>
+              <div className="bg-white w-16 p-3 pt-4 rounded-2xl shadow-md position-fixed top-0 left-1 h-[100vh] ">
               <div  className="pointer">
                 <img src={require('../../Assest/png-01 2 2.png')} alt="" />
                </div>
